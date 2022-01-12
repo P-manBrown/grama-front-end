@@ -29,37 +29,6 @@ class App extends React.Component {
       </div>
     )
   }
-
-  deleteTodo = id => {
-    const { todos } = this.state
-
-    axios
-      .delete(`${this.host}todos/${id}`)
-      .then(res => {
-        this.setState({
-          todos: todos.filter(todo => {
-            return todo.id !== id
-          }),
-        })
-      })
-      .catch(data => {
-        console.log(data)
-      })
-  }
-
-  addTodo = todo => {
-    const { todos } = this.state
-    axios
-      .post(`${this.host}todos`, todo)
-      .then(res => {
-        this.setState({
-          todos: [...todos, res.data],
-        })
-      })
-      .catch(data => {
-        console.log(data)
-      })
-  }
 }
 
 export default App
