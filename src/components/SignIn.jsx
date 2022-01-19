@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useContext, useState } from 'react';
-import { AuthContext } from '../providers/AuthProvider'
+import { AuthContext } from '../providers/AuthProvider';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
@@ -14,7 +14,7 @@ import { signIn } from "../lib/api/Auth";
 import Cookies from 'js-cookie';
 import { useNavigate, Link } from 'react-router-dom';
 import SignInImage from '../images/SignInImage.png'
-import Logo from '../images/Logo.png'
+import NameLogo from '../images/NameLogo.png'
 
 function Copyright(props) {
   return (
@@ -33,9 +33,7 @@ const theme = createTheme();
 export const SignIn = () => {
   const navigate = useNavigate()
   const [email, setEmail] = useState("")
-  const [isSignedIn, setIsSignedIn] = useState(false)
-  const [currentUser, setCurrentUser] = useState()
-  // const [setIsSignedIn, setCurrentUser] = useContext(AuthContext)
+  const { setIsSignedIn, setCurrentUser } = useContext(AuthContext)
   const [password,setPassword] = useState("")
 
   const handleSubmit = async (event) => {
@@ -55,16 +53,15 @@ export const SignIn = () => {
 
         setIsSignedIn(true)
         setCurrentUser(res.data.data)
-
-        navigate("/sign_up")
+        navigate("/todo")
 
         console.log("Success sign in!!")
         console.log(res.data.data)
       } else {
-        console.log("failure sign in")
+        console.log("failure sign in(try)")
       }
     } catch (err) {
-      console.log("failure sign in")
+      console.log("failure sign in (catch)")
       console.log(err)
     }
   }
@@ -96,9 +93,7 @@ export const SignIn = () => {
               alignItems: 'center',
             }}
           >
-            <img
-              src={`${Logo}`}
-            />
+            <img src={`${NameLogo}`} />
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 5 }}>
               <TextField
                 margin="normal"
@@ -128,7 +123,7 @@ export const SignIn = () => {
                 fullWidth
                 variant="contained"
                 sx={{ mt: 5, mb: 2 }}
-                // 空欄ありの場合、ボタン押下不可
+                // 空欄ありの場合、`Sign in`ボタン押下不可
                 disabled={!email || !password ? true : false}
                 onClick={handleSubmit}
               >
