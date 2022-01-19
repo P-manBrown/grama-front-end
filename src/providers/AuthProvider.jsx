@@ -1,25 +1,24 @@
 import {createContext, useState} from 'react'
 
-export const AuthContext = createContext({});
+export const AuthContext = createContext();
 
 export const AuthProvider = (props) => {
-  const {children} = props;
   const [loading, setLoading] = useState(true)
   const [isSignedIn, setIsSignedIn] = useState(false)
   const [currentUser, setCurrentUser] = useState()
 
   return (
     <AuthContext.Provider
-      value={
+      value={{
         loading,
         setLoading,
         isSignedIn,
         setIsSignedIn,
         currentUser,
         setCurrentUser
-      }
+      }}
     >
-      {children}
+      { props.children }
     </AuthContext.Provider>
   )
 }

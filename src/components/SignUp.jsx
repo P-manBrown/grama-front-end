@@ -1,28 +1,28 @@
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
+import { useContext, useState } from 'react';
+import { AuthContext } from '../providers/AuthProvider'
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
+import LinkTo from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Logo from '../images/Logo.png'
+import NameLogo from '../images/NameLogo.png'
+import { useNavigate, Link } from 'react-router-dom';
+import { signUp } from '../lib/api/Auth'
+import Cookies from 'js-cookie';
 
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
+        {'Copyright © P-man Brown 2022 '}
+      <br />
+      <LinkTo  color="inherit" href="https://github.com/P-manBrown">
+        GitHub(@P-manBrown)
+      </LinkTo>
     </Typography>
   );
 }
@@ -30,31 +30,62 @@ function Copyright(props) {
 const theme = createTheme();
 
 export const SignUp = () => {
-  const handleSubmit = (event) => {
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [passwordConfirmation, setPasswordConfirmation] = useState("")
+  // const [isSignedIn, setIsSignedIn] = useState(false)
+  // const [currentUser, setCurrentUser] = useState()
+  const { setIsSignedIn, setCurrentUser } = useContext(AuthContext)
+  const navigate = useNavigate()
+
+  const handleSubmit = async(event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    // eslint-disable-next-line no-console
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const params = {
+      name: name,
+      email: email,
+      password: password,
+      passwordConfirmation: passwordConfirmation
+    }
+
+    try {
+      const res = await signUp(params)
+      console.log(res)
+
+      if (res.status === 200) {
+        Cookies.set("_access_token",res.headers["access-token"])
+        Cookies.set("_client",res.headers["client"])
+        Cookies.set("_uid",res.headers["uid"])
+
+        setIsSignedIn(true)
+        setCurrentUser(res.data.data)
+
+        navigate("/todo")
+
+        console.log("Success sign up!!")
+        console.log(res.data.data)
+      } else {
+        console.log("failure sign up")
+      }
+    } catch (err) {
+      console.log("failure sign up")
+      console.log(err)
+    }
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs">
+    <ThemeProvider theme={theme} >
+      <Container component="main" maxWidth="xs" >
         <CssBaseline />
         <Box
           sx={{
-            marginTop: 8,
+            marginTop: 10,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
           }}
         >
-          <img
-              src={`${Logo}`}
-            />
+          <img src={`${NameLogo}`} />
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
@@ -66,6 +97,7 @@ export const SignUp = () => {
                   name="Name"
                   autoComplete="user-name"
                   autoFocus
+                  onChange={event => setName(event.target.value)}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -77,6 +109,7 @@ export const SignUp = () => {
                   label="メールアドレス"
                   name="email"
                   autoComplete="email"
+                  onChange={event => setEmail(event.target.value)}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -84,27 +117,23 @@ export const SignUp = () => {
                   required
                   fullWidth
                   name="password"
-                  label="Password"
+                  label="パスワード"
                   type="password"
                   id="password"
                   autoComplete="new-password"
+                  onChange={event => setPassword(event.target.value)}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
                   fullWidth
-                  name="password"
-                  label="Password"
+                  name="password-confirmation"
+                  label="パスワード（確認）"
                   type="password"
-                  id="password"
+                  id="password-confirmation"
                   autoComplete="new-password"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
+                  onChange={event => setPasswordConfirmation(event.target.value)}
                 />
               </Grid>
             </Grid>
@@ -113,13 +142,15 @@ export const SignUp = () => {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={!name || !email || !password || !passwordConfirmation ? true : false}
+              onClick={handleSubmit}
             >
               Sign Up
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="/sign_in" variant="body2">
-                  Already have an account? Sign in
+                <Link to="/sign_in" variant="body2">
+                  登録済みの方はこちら
                 </Link>
               </Grid>
             </Grid>
